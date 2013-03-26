@@ -6,24 +6,21 @@ import Ordering.Implicits._
 import Numeric.Implicits._
 
 abstract class Table {
-  abstract class Num
-  case object IntNum extends Num
-  case object FloatNum extends Num
 
   /*Represents a table as a list of objects*/
 
   var records: List[mutable.Map[String, Double]] = List()
-  
+
   val filename: String
-  val fields: List[(String, Int, Int, Num)]
+  val fields: List[(String, Int, Int)]
 
   def readRecords {
     readFile(filename, fields)
     recode
-  }  
-  
-  def readFile(filename: String, fields: List[(String, Int, Int, Num)]) {
-    /*Reads a compressed data file builds one object per record.
+  }
+
+  def readFile(filename: String, fields: List[(String, Int, Int)]) {
+    /*Reads a data file, builds one map per record.
 
         Args:
             filename: string name of the file to read
@@ -38,8 +35,8 @@ abstract class Table {
     }
   }
 
-  def makeRecord(line: String, fields: List[(String, Int, Int, Num)]): mutable.Map[String, Double] = {
-    /*Scans a line and returns an object with the appropriate fields.
+  def makeRecord(line: String, fields: List[(String, Int, Int)]): mutable.Map[String, Double] = {
+    /*Scans a line and returns a map with the appropriate fields.
 
         Args:
             line: string line from a data file
@@ -50,14 +47,11 @@ abstract class Table {
         Returns:
             Record with appropriate fields.
         */
-    mutable.Map((for ((field, start, end, cast) <- fields) yield (field, {
+    mutable.Map((for ((field, start, end) <- fields) yield (field, {
       val s = line.slice(start - 1, end).trim
       try {
-      cast match {
-        case IntNum => s.toInt
-        case FloatNum => s.toDouble
-        case _ => Double.NaN
-      }
+        s.toDouble
+
       } catch {
         case e: java.lang.NumberFormatException => Double.NaN
       }
@@ -89,20 +83,20 @@ class Respondents extends Table {
 
                 field is the name of the variable
                 start and end are the indices as specified in the NSFG docs
-                cast is a callable that converts the result to int, float, etc.
+                cast is a case class int, float, etc.
         */
-    List(("caseid", 1, 12, IntNum))
+    List(("caseid", 1, 12))
 
   def recode = {}
 }
 
 class Pregnancies extends Table {
-    /* Contains survey data about a Pregnancy. */
+  /* Contains survey data about a Pregnancy. */
 
-    val filename = "D:/statcat/2002FemPreg.dat"
+  val filename = "D:/statcat/2002FemPreg.dat"
 
-    val fields = 
-        /*Gets information about the fields to extract from the survey data.
+  val fields =
+    /*Gets information about the fields to extract from the survey data.
 
         Documentation of the fields for Cycle 6 is at
         http://nsfg.icpsr.umich.edu/cocoon/WebDocs/NSFG/public/index.htm
@@ -110,40 +104,38 @@ class Pregnancies extends Table {
         Returns:
             sequence of (name, start, end, type) tuples
         */
-        List(
-            ("caseid", 1, 12, IntNum),
-            ("nbrnaliv", 22, 22, IntNum),
-            ("babysex", 56, 56, IntNum),
-            ("birthwgt_lb", 57, 58, IntNum),
-            ("birthwgt_oz", 59, 60, IntNum),
-            ("prglength", 275, 276, IntNum),
-            ("outcome", 277, 277, IntNum),
-            ("birthord", 278, 279, IntNum),
-            ("agepreg", 284, 287, IntNum),
-            ("finalwgt", 423, 440, FloatNum)
-            )
+    List(
+      ("caseid", 1, 12),
+      ("nbrnaliv", 22, 22),
+      ("babysex", 56, 56),
+      ("birthwgt_lb", 57, 58),
+      ("birthwgt_oz", 59, 60),
+      ("prglength", 275, 276),
+      ("outcome", 277, 277),
+      ("birthord", 278, 279),
+      ("agepreg", 284, 287),
+      ("finalwgt", 423, 440))
 
-    def recode {
-        for (rec<- records) {
+  def recode {
+    for (rec <- records) {
 
-            // divide mother's age by 100
-            
-                if (rec("agepreg") != Double.NaN)
-                    rec("agepreg") /= 100.0
+      // divide mother's age by 100
 
-            // convert weight at birth from lbs/oz to total ounces
-            // note: there are some very low birthweights
-            // that are almost certainly errors, but for now I am not
-            // filtering
-                if (rec("birthwgt_lb") != Double.NaN && rec("birthwgt_lb") < 20 &&
-                    rec("birthwgt_oz") != Double.NaN && rec("birthwgt_oz") <= 16)
-                    rec("totalwgt_oz") = rec("birthwgt_lb") * 16 + rec("birthwgt_oz")
-                else
-                    rec("totalwgt_oz") = Double.NaN
-        }
+      if (rec("agepreg") != Double.NaN)
+        rec("agepreg") /= 100.0
+
+      // convert weight at birth from lbs/oz to total ounces
+      // note: there are some very low birthweights
+      // that are almost certainly errors, but for now I am not
+      // filtering
+      if (rec("birthwgt_lb") != Double.NaN && rec("birthwgt_lb") < 20 &&
+        rec("birthwgt_oz") != Double.NaN && rec("birthwgt_oz") <= 16)
+        rec("totalwgt_oz") = rec("birthwgt_lb") * 16 + rec("birthwgt_oz")
+      else
+        rec("totalwgt_oz") = Double.NaN
     }
+  }
 }
-
 
 object survey {
 
@@ -155,6 +147,8 @@ object survey {
     val preg = new Pregnancies
     preg.readRecords
     println("Number of pregnancies " + preg.records.size)
+    
+    
   }
 
 }
