@@ -1,7 +1,7 @@
 package ugent
 
 import scala.collection.mutable
-import scala.io.Source
+import scalax.io._
 import Ordering.Implicits._
 import Numeric.Implicits._
 
@@ -28,7 +28,7 @@ abstract class Table {
             fields: sequence of (name, start, end, case) tuples specifying 
             the fields to extract
         */
-    val fp = Source.fromFile(filename).getLines.filter(!_.isEmpty)
+    val fp = Resource.fromFile(filename).lines().filter(!_.isEmpty)
     for (line <- fp) {
       val record = makeRecord(line, fields)
       addRecord(record)
@@ -135,6 +135,7 @@ class Pregnancies extends Table {
         rec("totalwgt_oz") = Double.NaN
     }
   }
+  
 }
 
 object survey {
@@ -147,8 +148,7 @@ object survey {
     val preg = new Pregnancies
     preg.readRecords
     println("Number of pregnancies " + preg.records.size)
-    
-    
+
   }
 
 }
