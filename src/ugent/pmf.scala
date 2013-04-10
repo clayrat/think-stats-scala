@@ -5,12 +5,17 @@ import scala.math._
 
 class DictWrapper[A, B] {
   var theMap: mutable.Map[A, B] = mutable.Map()
-
+  
   def items = theMap.toList
   def values = theMap.keys.toList
 }
 
 class Hist[A] extends DictWrapper[A, Int] {
+
+  def this(map: Map[A, Int]) {
+    this()
+    theMap = mutable.Map[A, Int](map.toSeq: _*)
+  }
 
   def this(as: List[A]) = {
     this()
@@ -29,7 +34,7 @@ class Hist[A] extends DictWrapper[A, Int] {
 
 class Pmf[A] extends DictWrapper[A, Double] {
 
-  def this(map: Map[A, Double]) = {
+  def this(map: Map[A, Double]) {
     this()
     theMap = mutable.Map[A, Double](map.toSeq: _*)
   }
@@ -44,7 +49,9 @@ class Pmf[A] extends DictWrapper[A, Double] {
   def this(as: List[A]) = {
     this(new Hist[A](as))
   }
-
+  
+  def copy: Pmf[A] = new Pmf[A](items.toMap)
+  def mult(key: A, factor: Double) = theMap(key) *= factor 
   def total = items.unzip._2.sum
   def normalize = {
     val tot = total
@@ -54,23 +61,36 @@ class Pmf[A] extends DictWrapper[A, Double] {
 
 }
 
-object PmfTest {
+class intPmf extends Pmf[Int] {
 
-  def pmfMean(pmf: Pmf[Int]) = pmf.items.map(a => a._1 * a._2).sum
-  def pmfVari(pmf: Pmf[Int]) = {
-    val mu = pmfMean(pmf)
-    pmf.items.map(a => a._2 * pow(a._1 - mu, 2)).sum
+  def this(pmf: Pmf[Int]) {
+    this()
+    theMap = pmf.theMap
   }
 
+  def mean = items.map(a => a._1 * a._2).sum
+
+  def variance = {
+    val mu = mean
+    items.map(a => a._2 * pow(a._1 - mu, 2)).sum
+  }
+
+}
+
+object PmfTest {
+
+  implicit def pmf2intPmf(pmf: Pmf[Int]) = new intPmf(pmf)
+
   def remainingLifetime(lifetimes: Pmf[Int], age: Int): Pmf[Int] = {
-    val newPmf = new Pmf[Int](lifetimes.items.filterNot(a => (a._1 < age)).toMap)
+    val newMap = lifetimes.items.filterNot(a => (a._1 < age)).toMap
+    val newPmf = new Pmf[Int](newMap)
     newPmf.normalize
     newPmf
   }
 
   def main(args: Array[String]) {
     val pmf = new Pmf[Int](List(1, 2, 2, 3, 5))
-    println(pmfVari(pmf))
+    println(pmf.variance)
 
   }
 
