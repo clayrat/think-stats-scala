@@ -1,5 +1,8 @@
 package ugent
 
+import spire.math._
+import spire.math.compat._
+
 import scala.math._
 import scalax.io._
 
@@ -7,7 +10,7 @@ object relay {
 
   def biasSpeedPmf(pmf: Pmf[Double], speed: Double): Pmf[Double] = {
     val biased = pmf.copy
-    biased.items map { a => biased.mult(a._1, abs(a._1 - speed)) }
+    biased.items map { a => biased.mult(a._1, scala.math.abs(a._1 - speed)) }
     biased.normalize
     biased
   }
@@ -24,10 +27,13 @@ object relay {
   }
 
   def main(args: Array[String]) {
-    val pmf = new Pmf[Double](convertPaces(readPaces))
-    plot.linePlot(pmf, "Paces")
+    val paces = convertPaces(readPaces)
+    val pmf = new Pmf[Double](paces)
+    plot.linePlot(pmf.items.map({x => (Number(x._1),Number(x._2))}), "Paces")
     val biasedPmf = biasSpeedPmf(pmf,7.5)
     plot.histPlot(biasedPmf,"Observed speed")
+    val cdf = Cdf.fromList(paces.map(Number(_)))
+    plot.linePlot(cdf.items.map({x => (x._1,Number(x._2))}), "Cdf")
   }
 
 }

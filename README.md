@@ -5,4 +5,5 @@ Functions and exercises from Allen Downey's "Think Stats" (http://greenteapress.
 
 Requires:
 * Scala-IO
+* Spire
 * jMathPlot
