@@ -8,6 +8,7 @@ class DictWrapper[A, B] {
   
   def items = theMap.toList
   def values = theMap.keys.toList
+  
 }
 
 class Hist[A] extends DictWrapper[A, Int] {
