@@ -33,7 +33,7 @@ object Cdf {
   def fromItems(its: List[(Number, Int)]): Cdf = {
     val (xs, cs) = its.sorted.unzip
     val cumcs = cs.scanLeft(0.0)(_ + _).tail
-    new Cdf((xs zip (cumcs map (_ / cumcs.sum))))
+    new Cdf((xs zip (cumcs map (_ / cumcs.last))))
   }
 
 }
