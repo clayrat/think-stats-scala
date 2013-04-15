@@ -8,7 +8,9 @@ class Cdf(val xps: List[(Number, Double)]) {
 
   def values = xps.unzip._1
   def items = xps
-  def render = items.map({x => (x._1,Number(x._2))}) 
+  def render = items.map({x => (x._1,Number(x._2))})
+  
+  def renderCCDF = items.map({x => (x._1,Number(1-x._2))})
 
   def prob(x: Number): Double = if (x < xps.head._1) 0.0 else xps.toSeq.takeWhile(_._1 <= x).last._2
 
@@ -62,7 +64,7 @@ object Cdf {
     val liveCdf = Cdf.fromList(liveGrams map (Number(_)))
     val liveSample = liveCdf.sample(1000)
     val sampleCdf = Cdf.fromList(liveSample)
-    plot.linePlot2(liveCdf.render, sampleCdf.render, "Live and Sample")
+    plot.linePlot2(liveCdf.render, "Live" , sampleCdf.render, "Sample", xtitle = "Grams", ytitle="P")
     
     //3.11
     println(liveCdf.percentile(25))

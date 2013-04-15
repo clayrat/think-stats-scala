@@ -29,11 +29,11 @@ object relay {
   def main(args: Array[String]) {
     val paces = convertPaces(readPaces)
     val pmf = new Pmf[Double](paces)
-    plot.linePlot(pmf.items.map({x => (Number(x._1),Number(x._2))}), "Paces")
-    val biasedPmf = biasSpeedPmf(pmf,7.5)
-    plot.histPlot(biasedPmf,"Observed speed")
+    plot.linePlot(pmf.items.map({ case (x,p) => (Number(x), Number(p)) }), "Paces PMF")
+    val biasedPmf = biasSpeedPmf(pmf, 7.5)
+    plot.histPlot(biasedPmf.items.map({ case (x,p) => (Number(x), Number(p)) }), "Observed speed")
     val cdf = Cdf.fromList(paces.map(Number(_)))
-    plot.linePlot(cdf.render, "Cdf")
+    plot.linePlot(cdf.render, "Paces CDF")
   }
 
 }
