@@ -9,9 +9,8 @@ import Numeric.Implicits._
 
 abstract class Table {
 
-  /*Represents a table as a list of objects*/
-
-  var records: List[mutable.Map[String, Double]] = List()
+  /*Represents a table as an array of objects*/
+  var records: Array[mutable.Map[String, Double]] = Array()
 
   val filename: String
   val fields: List[(String, Int, Int)]

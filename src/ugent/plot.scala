@@ -7,7 +7,6 @@ import javax.swing.JFrame
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.axis.LogarithmicAxis;
-//import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer
@@ -46,7 +45,7 @@ object plot {
     frame.setVisible(true)
   }
 
-  def linePlot(data: List[(Number, Number)], title: String, xtitle: String = "X", ytitle: String = "Y", logScale: Boolean = false) {
+  def linePlot(data: List[(Number, Number)], title: String, xtitle: String = "X", ytitle: String = "Y", logX: Boolean = false, logY: Boolean = false) {
     val series = new XYSeries("")
     data map { case (x, y) => series.add(x, y) }
     val dataset = new XYSeriesCollection(series)
@@ -61,8 +60,12 @@ object plot {
       true, // tooltips?
       false) // URLs?
 
-    if (logScale) {
-      val plot = chart.getPlot().asInstanceOf[XYPlot]
+    val plot = chart.getPlot().asInstanceOf[XYPlot]
+    if (logX) {
+      val domainAxis = new LogarithmicAxis("log(" + xtitle + ")");
+      plot.setDomainAxis(domainAxis);
+    }
+    if (logY) {
       val rangeAxis = new LogarithmicAxis("log(" + ytitle + ")");
       plot.setRangeAxis(rangeAxis);
     }
@@ -94,6 +97,29 @@ object plot {
       true, // include legend?
       true,
       false)
+
+    val frame = new JFrame(title)
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+    frame.setSize(640, 420)
+    frame.add(new ChartPanel(chart))
+    frame.pack()
+    frame.setVisible(true)
+  }
+
+  def scatterPlot(data: List[(Number, Number)], title: String, xtitle: String = "X", ytitle: String = "Y") {
+    val series = new XYSeries("")
+    data map { case (x, y) => series.add(x, y) }
+    val dataset = new XYSeriesCollection(series)
+
+    val chart = ChartFactory.createScatterPlot(
+      title, // chart title
+      xtitle, // domain axis label
+      ytitle, // range axis label
+      dataset, // data
+      PlotOrientation.VERTICAL,
+      false, // include legend?
+      true, // tooltips?
+      false) // URLs?
 
     val frame = new JFrame(title)
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)

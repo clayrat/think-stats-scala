@@ -53,7 +53,7 @@ object Cdf {
     // 3.6
     val preg = new Pregnancies
     preg.readRecords
-    val liveBirths = preg.records.filter(_("outcome") == 1)
+    val liveBirths = preg.records.filter(_("outcome") == 1).toList
     val (firstWgt, nonfirstWgt) = util.map2(liveBirths.partition(_("birthord") == 1), { a: mutable.Map[String, Double] => a("totalwgt_oz") })
     val firstGram = (firstWgt.filterNot(_.isNaN) map util.ozToGram)
     val firstCdf = Cdf.fromList(firstGram map (Number(_)))
@@ -64,7 +64,7 @@ object Cdf {
     val liveCdf = Cdf.fromList(liveGrams map (Number(_)))
     val liveSample = liveCdf.sample(1000)
     val sampleCdf = Cdf.fromList(liveSample)
-    plot.linePlot2(liveCdf.render, "Live" , sampleCdf.render, "Sample", xtitle = "Grams", ytitle="P")
+    plot.linePlot2(liveCdf.render, "All live weights CDF" , sampleCdf.render, "Sample weights CDF", xtitle = "Grams", ytitle="P")
     
     //3.11
     println(liveCdf.percentile(25))

@@ -36,6 +36,9 @@ object relay {
     //3.5
     val cdf = Cdf.fromList(paces.map(Number(_)))
     plot.linePlot(cdf.render, "Paces CDF")
+    
+    //4.10
+    continuous.normalPlot(paces map {Number(_)}, "Speed")
   }
 
 }

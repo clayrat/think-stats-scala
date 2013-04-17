@@ -4,7 +4,7 @@ object risk {
   
   //2.6
   def probRange(pmf: Pmf[Int], a: Int, b: Int): Double = {
-    pmf.items.filter(x => (x._1 >= a && x._1 <= b)).unzip._2.sum
+    pmf.items.filter(x => (a to b) contains x._1).unzip._2.sum
   }
   def probEarly(pmf: Pmf[Int]) = probRange(pmf, pmf.vals.min, 37)
   def probOnTime(pmf: Pmf[Int]) = probRange(pmf, 38, 40)

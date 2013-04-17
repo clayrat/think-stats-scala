@@ -1,11 +1,14 @@
 package ugent
 
+import spire.math._
+import spire.math.compat._
+
 import scala.collection._
 
 object first {
 
   def liveFirstNonFirst(table: Table): (List[Double], List[Double], List[Double]) = {
-    val liveBirths = table.records.filter(_("outcome") == 1)
+    val liveBirths = table.records.filter(_("outcome") == 1).toList
     val (firstKid, nonfirstKid) = liveBirths.partition(_("birthord") == 1)
     util.map3((liveBirths, firstKid, nonfirstKid), { a: mutable.Map[String, Double] => a("prglength") })
   }
@@ -17,18 +20,18 @@ object first {
     println("Number of pregnancies: " + table.records.size)
     val (live, first, nonfirst) = liveFirstNonFirst(table)
     println("Number of live births: " + live.size)
-    println("Average pregnancy for first kid: " + thinkstats.mean(first))
-    println("Average pregnancy for non-first kid: " + thinkstats.mean(nonfirst))
+    println("Average pregnancy for first kid: " + thinkstats.mean(first map { Number(_) }))
+    println("Average pregnancy for non-first kid: " + thinkstats.mean(nonfirst map { Number(_) }))
 
     //2.1
     val pumpkins = List(1, 1, 1, 3, 3, 591).map(_.toDouble)
-    val pMu = thinkstats.mean(pumpkins)
-    val pSig2 = thinkstats.variance(pumpkins)
-    val pSig = thinkstats.stddev(pumpkins)
+    val pMu = thinkstats.mean(pumpkins map { Number(_) })
+    val pSig2 = thinkstats.variance(pumpkins map { Number(_) })
+    val pSig = thinkstats.stddev(pumpkins map { Number(_) })
     println("Pumpkins' mu, sigma2 and sigma: " + pMu + " " + pSig2 + " " + pSig)
-   
+
     //2.2
-    println("Pregnancy sigma for first kid: " + thinkstats.stddev(first))
-    println("Pregnancy sigma for non-first kid: " + thinkstats.stddev(nonfirst))
+    println("Pregnancy sigma for first kid: " + thinkstats.stddev(first map { Number(_) }))
+    println("Pregnancy sigma for non-first kid: " + thinkstats.stddev(nonfirst map { Number(_) }))
   }
 }
