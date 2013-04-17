@@ -8,16 +8,15 @@ import scalax.io._
 
 object relay {
 
-  def biasSpeedPmf(pmf: Pmf[Double], speed: Double): Pmf[Double] = {
-    val biased = pmf.copy
-    biased.items map { a => biased.mult(a._1, scala.math.abs(a._1 - speed)) }
-    biased.normalize
-    biased
-  }
+  def renderPmf(pmf: Pmf[Double]): List[(Number, Number)] = pmf.items.map { case (x, p) => (Number(x), Number(p)) }
+
+  //3.2
+  def biasSpeedPmf(pmf: Pmf[Double], speed: Double): Pmf[Double] =
+    pmf.multiplied { a: Double => math.abs(a - speed) }.normalized
 
   def readPaces = {
     val inp = Resource.fromFile("data/Apr25_27thAn_set1.dat").lines()
-    val items = inp.filter(!_.trim.isEmpty).map(_.split(' ').filterNot(_.isEmpty))
+    val items = inp.filterNot(_.trim.isEmpty).map(_.split(' ').filterNot(_.isEmpty))
     val properItems = items.filter(e => e(1).contains('/') && e.slice(3, 6).map(_.contains(':')).reduce(_ && _))
     properItems.map(_(5)).toList
   }
@@ -28,10 +27,13 @@ object relay {
 
   def main(args: Array[String]) {
     val paces = convertPaces(readPaces)
-    val pmf = new Pmf[Double](paces)
-    plot.linePlot(pmf.items.map({ case (x,p) => (Number(x), Number(p)) }), "Paces PMF")
+
+    val pmf = Pmf.fromList(paces)
+    plot.linePlot(renderPmf(pmf), "Paces PMF")
     val biasedPmf = biasSpeedPmf(pmf, 7.5)
-    plot.histPlot(biasedPmf.items.map({ case (x,p) => (Number(x), Number(p)) }), "Observed speed")
+    plot.histPlot(renderPmf(biasedPmf), "Observed speed")
+
+    //3.5
     val cdf = Cdf.fromList(paces.map(Number(_)))
     plot.linePlot(cdf.render, "Paces CDF")
   }

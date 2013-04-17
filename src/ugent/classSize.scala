@@ -2,21 +2,14 @@ package ugent
 
 object classSize {
 
-  implicit def pmf2intPmf(pmf: Pmf[Int]) = new intPmf(pmf)
+  implicit def pmf2intPmf(pmf: Pmf[Int]) = intPmf.fromPmf(pmf)
+  
+  //3.1
+  def biasedPmf(pmf: Pmf[Int]): Pmf[Int] =
+    pmf.multiplied { a: Int => a }.normalized
 
-  def biasedPmf(pmf: Pmf[Int]): Pmf[Int] = {
-    val biased = pmf.copy
-    biased.items map { a => biased.mult(a._1, a._1) }
-    biased.normalize
-    biased
-  }
-
-  def unbiasedPmf(pmf: Pmf[Int]): Pmf[Int] = {
-    val unbiased = pmf.copy
-    unbiased.items map { a => unbiased.mult(a._1, 1.0 / a._1) }
-    unbiased.normalize
-    unbiased
-  }
+  def unbiasedPmf(pmf: Pmf[Int]): Pmf[Int] =
+    pmf.multiplied { a: Int => 1.0 / a }.normalized
 
   def main(args: Array[String]) {
     val classSize = Map(
@@ -30,7 +23,7 @@ object classSize {
       42 -> 3,
       47 -> 2)
 
-    val classPmf = new Pmf[Int](new Hist[Int](classSize))
+    val classPmf = Pmf.fromHist(Hist.fromMap(classSize))
     val biased = biasedPmf(classPmf)
     val unbiased = unbiasedPmf(biased)
 

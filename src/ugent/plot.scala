@@ -25,11 +25,11 @@ object plot {
     val chart = ChartFactory.createXYBarChart(
       title, // chart title
       xtitle, // domain axis label
-      false, // X axis shows dates
+      false, // X axis shows dates?
       ytitle, // range axis label
       dataset, // data
       PlotOrientation.VERTICAL,
-      false, // include legend
+      false, // include legend?
       true, // tooltips?
       false) // URLs?
 
@@ -57,9 +57,9 @@ object plot {
       ytitle, // range axis label
       dataset, // data
       PlotOrientation.VERTICAL,
-      false, // include legend
-      true,
-      false)
+      false, // include legend?
+      true, // tooltips?
+      false) // URLs?
 
     if (logScale) {
       val plot = chart.getPlot().asInstanceOf[XYPlot]
@@ -86,12 +86,12 @@ object plot {
     dataset.addSeries(series2)
 
     val chart = ChartFactory.createXYLineChart(
-      title + " and " + title2, // chart title
-      xtitle, // domain axis label
-      ytitle, // range axis label
-      dataset, // data
+      title + " and " + title2,
+      xtitle,
+      ytitle,
+      dataset,
       PlotOrientation.VERTICAL,
-      true, // include legend
+      true, // include legend?
       true,
       false)
 

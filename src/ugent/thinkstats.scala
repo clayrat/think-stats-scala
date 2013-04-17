@@ -20,7 +20,7 @@ object thinkstats {
   def main(args: Array[String]) {
     //3.10
     val thousand = List.fill(1000)(scala.util.Random.nextDouble())
-    val thPmf = new Pmf(thousand)
+    val thPmf =Pmf.fromList(thousand)
     val thCdf = Cdf.fromList(thousand map (Number(_)))
     plot.linePlot(thPmf.items.map({ x => (Number(x._1), Number(x._2)) }), "Random 1000 PMF")
     plot.linePlot(thCdf.render, "Random 1000 CDF")

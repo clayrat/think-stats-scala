@@ -1,12 +1,13 @@
 package ugent
 
+import spire.math._
+import spire.math.compat._
+
 object conditional {
 
-  def conditionalPmf[A](pmf: Pmf[A], condition: A => Boolean): Pmf[A] = {
-    val newPmf = new Pmf[A](pmf.items.filterNot({ a => condition(a._1) }).toMap)
-    newPmf.normalize
-    newPmf
-  }
+  //2.7
+  def conditionalPmf[A](pmf: Pmf[A], condition: A => Boolean): Pmf[A] =
+    new Pmf[A](pmf.pmfMap.filterNot { a => condition(a._1) }).normalized
 
   def conditionalBirthProb(pmf: Pmf[Int], week: Int): Double =
     conditionalPmf[Int](pmf, { a: Int => a < week }).prob(week)
@@ -15,15 +16,14 @@ object conditional {
     val table = new Pregnancies
     table.readRecords
     val (live, firstK, nonfirstK) = util.map3(first.liveFirstNonFirst(table), { a: Double => a.toInt })
-    val firstPmf = new Pmf[Int](firstK)
-    val nonfirstPmf = new Pmf[Int](nonfirstK)
+    val firstPmf = Pmf.fromList(firstK)
+    val nonfirstPmf = Pmf.fromList(nonfirstK)
 
-    val firstProbs = for (x <- (35 to 46)) yield conditionalBirthProb(firstPmf, x)
-    val nonfirstProbs = for (x <- (35 to 46)) yield conditionalBirthProb(nonfirstPmf, x)
+    val conditionalList = { pmf: Pmf[Int] => (35 to 46).map { week => (Number(week), Number(conditionalBirthProb(pmf, week))) }.toList }
 
-    println(firstProbs)
-    println(nonfirstProbs)
-
+    val firstProbs = conditionalList(firstPmf)
+    val nonfirstProbs = conditionalList(nonfirstPmf)
+    plot.linePlot2(firstProbs, "first probs", nonfirstProbs, "non-first probs", xtitle = "week", ytitle = "P")
   }
 
 }

@@ -1,96 +1,94 @@
 package ugent
 
-import scala.collection.mutable
+import spire.math._
+import spire.math.compat._
+
 import scala.math._
 
-class DictWrapper[A, B] {
-  var theMap: mutable.Map[A, B] = mutable.Map()
-  
-  def items = theMap.toList
-  def values = theMap.keys.toList
-  
-}
+class Hist[A](val histMap: Map[A, Int]) {
 
-class Hist[A] extends DictWrapper[A, Int] {
+  def items = histMap.toList
 
-  def this(map: Map[A, Int]) {
-    this()
-    theMap = mutable.Map[A, Int](map.toSeq: _*)
-  }
+  def freq(key: A) = histMap.getOrElse(key, 0)
 
-  def this(as: List[A]) = {
-    this()
-    for (a <- as)
-      if (!theMap.contains(a))
-        theMap(a) = 1
-      else theMap(a) += 1
-  }
-
-  def freq(key: A) = theMap.getOrElse(key, 0)
-
+  // 2.3
   def allmodes = items.sortBy(a => a._2).reverse
   def mode = allmodes.head._1
 
 }
 
-class Pmf[A] extends DictWrapper[A, Double] {
+object Hist {
+  def fromMap[A](map: Map[A, Int]) =
+    new Hist(map)
 
-  def this(map: Map[A, Double]) {
-    this()
-    theMap = mutable.Map[A, Double](map.toSeq: _*)
-  }
-
-  def this(hist: Hist[A]) = {
-    this()
-    val total = hist.items.unzip._2.sum
-    for ((a, freq) <- hist.items)
-      theMap(a) = freq.toDouble / total
-  }
-
-  def this(as: List[A]) = {
-    this(new Hist[A](as))
-  }
-  
-  def copy: Pmf[A] = new Pmf[A](items.toMap)
-  def mult(key: A, factor: Double) = theMap(key) *= factor 
-  def total = items.unzip._2.sum
-  def normalize = {
-    val tot = total
-    for ((a, prob) <- items) theMap(a) = prob / tot
-  }
-  def prob(key: A): Double = theMap.getOrElse(key, 0)
+  def fromList[A](as: List[A]) =
+    new Hist(as.distinct.map(a => (a, as.count(_ == a))).toMap)
 
 }
 
-class intPmf extends Pmf[Int] {
+class Pmf[A](val pmfMap: Map[A, Double]) {
 
-  def this(pmf: Pmf[Int]) {
-    this()
-    theMap = pmf.theMap
+  def items = pmfMap.toList
+  def vals = pmfMap.keys.toList
+
+  def total = pmfMap.values.sum
+  def prob(key: A): Double = pmfMap.getOrElse(key, 0)
+
+  def multiplied(fun: A => Double): Pmf[A] =
+    new Pmf[A](pmfMap.map({ case (a, prob) => (a, prob * fun(a)) }))
+
+  def normalized: Pmf[A] = {
+    val tot = total
+    new Pmf[A](pmfMap.map({ case (a, prob) => (a, prob / tot) }))
   }
 
+}
+
+object Pmf {
+  def fromMap[A](map: Map[A, Double]) {
+    new Pmf(map)
+  }
+
+  def fromHist[A](hist: Hist[A]) = {
+    val total = hist.histMap.values.sum
+    new Pmf(hist.histMap.map({ case (a, freq) => (a, freq.toDouble / total) }))
+  }
+
+  def fromList[A](as: List[A]) = {
+    fromHist(Hist.fromList(as))
+  }
+
+}
+
+class intPmf(val intMap: Map[Int, Double]) extends Pmf[Int](intMap: Map[Int, Double]) {
+  
+  //2.5
   def mean = items.map(a => a._1 * a._2).sum
 
-  def variance = {
+  def variance: Double = {
     val mu = mean
-    items.map(a => a._2 * pow(a._1 - mu, 2)).sum
+    items.map(a => a._2 * math.pow(a._1 - mu, 2)).sum
   }
+
+}
+
+object intPmf {
+
+  def fromPmf(pmf: Pmf[Int]): intPmf =
+    new intPmf(pmf.pmfMap)
 
 }
 
 object PmfTest {
 
-  implicit def pmf2intPmf(pmf: Pmf[Int]) = new intPmf(pmf)
-
-  def remainingLifetime(lifetimes: Pmf[Int], age: Int): Pmf[Int] = {
-    val newMap = lifetimes.items.filterNot(a => (a._1 < age)).toMap
-    val newPmf = new Pmf[Int](newMap)
-    newPmf.normalize
-    newPmf
-  }
+  implicit def pmf2intPmf(pmf: Pmf[Int]) = intPmf.fromPmf(pmf)
+  
+  //2.4
+  def remainingLifetime(lifetimes: Pmf[Int], age: Int): Pmf[Int] =
+    new Pmf[Int](lifetimes.pmfMap.filterNot { case (key, _) => (key < age) }).normalized
 
   def main(args: Array[String]) {
-    val pmf = new Pmf[Int](List(1, 2, 2, 3, 5))
+    val pmf = Pmf.fromList(List(1, 2, 2, 3, 5))
     println(pmf.variance)
 
   }

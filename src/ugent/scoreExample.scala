@@ -8,6 +8,7 @@ object scoreExample {
   def percentileSlow(scores: List[Int], rank: Double) =
     scores.sorted.view.filter(percentileRank(scores, _) >= rank).head
 
+  //3.3  
   def percentileBetter(scores: List[Int], rank: Double) = {
     val sortedSc = scores.sorted
     sortedSc((rank * (scores.size - 1) / 100).toInt)

@@ -2,6 +2,8 @@ package ugent
 
 import scala.collection.mutable
 import scalax.io._
+import java.util.zip.GZIPInputStream
+import java.io.FileInputStream
 import Ordering.Implicits._
 import Numeric.Implicits._
 
@@ -28,7 +30,7 @@ abstract class Table {
             fields: sequence of (name, start, end, case) tuples specifying 
             the fields to extract
         */
-    val fp = Resource.fromFile(filename).lines().filter(!_.isEmpty)
+    val fp = Resource.fromInputStream(new GZIPInputStream(new FileInputStream(filename))).lines().filterNot(_.isEmpty)
     for (line <- fp) {
       val record = makeRecord(line, fields)
       addRecord(record)
@@ -74,7 +76,7 @@ abstract class Table {
 class Respondents extends Table {
   /* Represents the respondent table. */
 
-  val filename = "D:/statcat/2002FemResp.dat"
+  val filename = "data/2002FemResp.dat.gz"
 
   val fields =
     /*Returns a tuple specifying the fields to extract.
@@ -93,7 +95,7 @@ class Respondents extends Table {
 class Pregnancies extends Table {
   /* Contains survey data about a Pregnancy. */
 
-  val filename = "D:/statcat/2002FemPreg.dat"
+  val filename = "data/2002FemPreg.dat.gz"
 
   val fields =
     /*Gets information about the fields to extract from the survey data.
@@ -135,7 +137,7 @@ class Pregnancies extends Table {
         rec("totalwgt_oz") = Double.NaN
     }
   }
-  
+
 }
 
 object survey {
