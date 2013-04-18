@@ -12,14 +12,23 @@ import spire.math.compat._
 object continuous {
 
   def renderPmf(pmf: Pmf[Double]): List[(Number, Number)] = pmf.items.map { case (x, p) => (Number(x), Number(p)) }
-  def removeZero(a: List[(Number, Number)]) = a.dropRight(1) :+ (a.last._1, a.dropRight(1).last._2)
+
+  def renderNormalCdf(mu: Double, sigma: Double, max: Double, n: Int = 50): List[(Number, Number)] = {
+    /*
+     * Generates sequences of xs and ps for a normal CDF.
+     */
+    val normDist = new Normal(mu, sigma)
+    val xs = (0 to n - 1).map(max * _ / n).toList
+    val ps = xs.map(normDist.cdf(_)).map { Number(_) }
+    xs.map { Number(_) } zip ps
+  }
 
   def babyInterarrival {
     val babyMinutes = List(5, 64, 78, 115, 177, 245, 247, 262, 271, 428, 455, 492, 494, 549, 635, 649, 653, 693, 729, 776, 785, 846, 847, 873, 886, 914, 991, 1017, 1062, 1087, 1105, 1134, 1149, 1187, 1189, 1191, 1210, 1237, 1251, 1264, 1283, 1337, 1407, 1435)
     val intertimes = (babyMinutes.drop(1) zip babyMinutes.dropRight(1)) map { case (a, b) => a - b }
     val babyCdf = Cdf.fromList(intertimes map { Number(_) })
     plot.linePlot(babyCdf.render, "interrival times CDF")
-    plot.linePlot(removeZero(babyCdf.renderCCDF), "interrival times CCDF log", logY = true)
+    plot.linePlot(util.removeLastZero(babyCdf.renderCCDF), "interrival times CCDF log", logY = true)
   }
 
   // 4.1
@@ -27,7 +36,7 @@ object continuous {
     val expDist = new Exponential(32.6)
     val expList = List.fill(44)(expDist.random)
     val expCdf = Cdf.fromList(expList map { Number(_) })
-    plot.linePlot(removeZero(expCdf.renderCCDF), "exponential samples CCDF log", logY = true)
+    plot.linePlot(util.removeLastZero(expCdf.renderCCDF), "exponential samples CCDF log", logY = true)
   }
 
   // 4.3
@@ -35,7 +44,7 @@ object continuous {
     val parDist = new Pareto(0.5, 1.0)
     val parList = List.fill(100)(parDist.random)
     val parCdf = Cdf.fromList(parList map { Number(_) })
-    plot.linePlot(removeZero(parCdf.renderCCDF), "Pareto samples CCDF log:log", logX = true, logY = true)
+    plot.linePlot(util.removeLastZero(parCdf.renderCCDF), "Pareto samples CCDF log:log", logX = true, logY = true)
   }
 
   //4.4.
@@ -55,7 +64,7 @@ object continuous {
     val lines = Resource.fromInputStream(new GZIPInputStream(new FileInputStream("data/pg4300.txt.gz"))).lines().filterNot(_.isEmpty)
     val wordSize = lines.map(_.filterNot(punctuation.contains(_)).split(' ').filterNot(_.isEmpty).map(_.size)).toList.flatten
     val wordCdf = Cdf.fromList(wordSize map { Number(_) })
-    plot.linePlot(removeZero(wordCdf.renderCCDF), "Ulysses word size CCDF log:log", logX = true, logY = true, xtitle = "word size")
+    plot.linePlot(util.removeLastZero(wordCdf.renderCCDF), "Ulysses word size CCDF log:log", logX = true, logY = true, xtitle = "word size")
   }
 
   //4.6
@@ -64,7 +73,7 @@ object continuous {
     val weiDist = new Weibull(1.0, 1.5)
     val weiList = List.fill(100)(weiDist.random)
     val weiCdf = Cdf.fromList(weiList map { Number(_) })
-    plot.linePlot(removeZero(axisTransform(weiCdf.render)), "Weibull sample CDF log:log(-log(1-F(X)))", logX = true, logY = true, ytitle = "-log(1-Y)")
+    plot.linePlot(util.removeLastZero(axisTransform(weiCdf.render)), "Weibull sample CDF log:log(-log(1-F(X)))", logX = true, logY = true, ytitle = "-log(1-Y)")
   }
 
   //4.7
@@ -104,10 +113,10 @@ object continuous {
   }
 
   //4.10
-  def normalPlot(ys: List[Number], title: String = "Y") {
+  def normalPlot(ys: List[Number], title: String = "Normal plot", ytitle: String = "Y") {
     val normDist = new Normal(0, 1)
     val xs = List.fill(ys.size)(Number(normDist.random)).sorted
-    plot.scatterPlot(xs zip ys.sorted, "Normal plot", xtitle = "Standard normal values", title)
+    plot.scatterPlot(xs zip ys.sorted, title, xtitle = "Standard normal values", ytitle)
   }
 
   def main(args: Array[String]) {

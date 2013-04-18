@@ -31,7 +31,7 @@ object relay {
     val pmf = Pmf.fromList(paces)
     plot.linePlot(renderPmf(pmf), "Paces PMF")
     val biasedPmf = biasSpeedPmf(pmf, 7.5)
-    plot.histPlot(renderPmf(biasedPmf), "Observed speed")
+    plot.histPlot(renderPmf(biasedPmf), "Observed speed @ 7.5 mph")
 
     //3.5
     val cdf = Cdf.fromList(paces.map(Number(_)))

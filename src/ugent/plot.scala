@@ -15,8 +15,17 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 object plot {
 
+  def render(chart: org.jfree.chart.JFreeChart, title: String) {
+    val frame = new JFrame(title)
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+    frame.setSize(640, 420)
+    frame.add(new ChartPanel(chart))
+    frame.pack()
+    frame.setVisible(true)
+  }
+
   def histPlot(data: List[(Number, Number)], title: String, xtitle: String = "X", ytitle: String = "Y") {
-    val series = new XYSeries("")
+    val series = new XYSeries(title)
     data map { case (x, y) => series.add(x, y) }
     val x = data.unzip._1
     val dataset = new XYSeriesCollection(series)
@@ -37,16 +46,11 @@ object plot {
     renderer.setMargin(0.98)
     renderer.setDrawBarOutline(true)
 
-    val frame = new JFrame(title)
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
-    frame.setSize(640, 420)
-    frame.add(new ChartPanel(chart))
-    frame.pack()
-    frame.setVisible(true)
+    render(chart, title)
   }
 
   def linePlot(data: List[(Number, Number)], title: String, xtitle: String = "X", ytitle: String = "Y", logX: Boolean = false, logY: Boolean = false) {
-    val series = new XYSeries("")
+    val series = new XYSeries(title)
     data map { case (x, y) => series.add(x, y) }
     val dataset = new XYSeriesCollection(series)
 
@@ -70,12 +74,7 @@ object plot {
       plot.setRangeAxis(rangeAxis);
     }
 
-    val frame = new JFrame(title)
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
-    frame.setSize(640, 420)
-    frame.add(new ChartPanel(chart))
-    frame.pack()
-    frame.setVisible(true)
+    render(chart, title)
   }
 
   def linePlot2(data: List[(Number, Number)], title: String, data2: List[(Number, Number)], title2: String, xtitle: String = "X", ytitle: String = "Y") {
@@ -98,16 +97,11 @@ object plot {
       true,
       false)
 
-    val frame = new JFrame(title)
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
-    frame.setSize(640, 420)
-    frame.add(new ChartPanel(chart))
-    frame.pack()
-    frame.setVisible(true)
+    render(chart, title + " and " + title2)
   }
 
   def scatterPlot(data: List[(Number, Number)], title: String, xtitle: String = "X", ytitle: String = "Y") {
-    val series = new XYSeries("")
+    val series = new XYSeries(title)
     data map { case (x, y) => series.add(x, y) }
     val dataset = new XYSeriesCollection(series)
 
@@ -121,12 +115,7 @@ object plot {
       true, // tooltips?
       false) // URLs?
 
-    val frame = new JFrame(title)
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
-    frame.setSize(640, 420)
-    frame.add(new ChartPanel(chart))
-    frame.pack()
-    frame.setVisible(true)
+    render(chart, title)
   }
 
 }

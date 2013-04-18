@@ -4,7 +4,7 @@ import spire.math._
 import spire.math.compat._
 
 class BRFSSRespondents extends Table {
-  val filename = "data/BRFSlight.ASC.gz"
+  val filename = "data/BRFSlight.ASC.gz" // first 15000 lines of CDBRFS08.ASC gzipped 
   val fields = List(
     ("age", 101, 102),
     ("weight2", 119, 122),
@@ -40,40 +40,68 @@ class BRFSSRespondents extends Table {
     }
   }
 
-  def summary(t: List[Double]) {
-    val (mu, vari) = thinkstats.trimmedMeanVar(t map { Number(_) })
-    val sigma = math.sqrt(vari)
-    val cv = sigma / mu
-    List(t.size, mu, vari, sigma, cv) map {d => print(d + " ")} 
-    println
-  }
-
   def summarizeParam(param: String) {
     /* 
      * Print summary statistics for male and female given parameter 
      */
+
+    def summary(t: List[Double]) {
+      val (mu, vari) = thinkstats.trimmedMeanVar(t map { Number(_) })
+      val sigma = math.sqrt(vari)
+      val cv = sigma / mu
+      List(t.size, mu, vari, sigma, cv) map { d => print(d + " ") }
+      println
+    }
 
     val male = records.filter(_("sex") == 1).map { _(param) }.filterNot(_.isNaN).toList
     val female = records.filter(_("sex") == 2).map { _(param) }.filterNot(_.isNaN).toList
     val all = male ++ female
     println("gen n        mean               var                sigma                cv")
     print("mal ")
-    summary(male) 
+    summary(male)
     print("fem ")
     summary(female)
     print("all ")
     summary(all)
   }
 
-  def summarizeWeightChange() {
+  def summarizeWeightChange {
     /* 
      * Print the mean reported change in weight in kg. 
      */
-
     val data = records.map { r => (r("weight2"), r("wtyrago")) }.filterNot { case (w, w2) => w.isNaN || w2.isNaN }
     val changes = data.map { case (w, w2) => Number(w - w2) }
-    print("Mean change " + thinkstats.mean(changes.toList))
+    println("Mean change " + thinkstats.mean(changes.toList))
   }
+
+  def makeNormalModel(weights: Array[Double], xmax: Double = 175.0, xlabel: String = "adult weight (kg)") {
+    val cdf = Cdf.fromList(weights.toList map { Number(_) })
+
+    val (mu, vari) = thinkstats.trimmedMeanVar(weights.sorted.toList map { Number(_) })
+    println("n, Mean, Var: " + weights.size, mu, vari)
+
+    val sigma = math.sqrt(vari)
+    println("Sigma: " + sigma)
+
+    plot.linePlot2(continuous.renderNormalCdf(mu, sigma, xmax), "weight model", cdf.render, "weight data", xlabel)
+
+  }
+
+  //4.11
+  def makeFigures {
+    /*
+     * Generates CDFs and normal prob plots for weights and log weights.
+     */
+
+    val weights = records.map(_("wtkg2")).filterNot(_.isNaN)
+    makeNormalModel(weights)
+    continuous.normalPlot(weights.toList map { Number(_) }, "Adult weight")
+
+    val logWeights = weights.map(math.log)
+    makeNormalModel(logWeights, xmax = math.log(175.0), xlabel = "adult weight (log kg)")
+    continuous.normalPlot(logWeights.toList map { Number(_) }, title = "Adult weight log")
+  }
+
 }
 
 object brfss {
@@ -84,7 +112,8 @@ object brfss {
     resp.summarizeParam("htm3")
     println("Weight (kg):")
     resp.summarizeParam("weight2")
-    resp.summarizeWeightChange()
+    resp.summarizeWeightChange
+    resp.makeFigures
   }
 
 }

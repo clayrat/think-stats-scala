@@ -10,7 +10,9 @@ class Cdf(val xps: List[(Number, Double)]) {
   def items = xps
 
   def render = items.map{x => (x._1,Number(x._2))}
+  
   def renderCCDF = items.map({x => (x._1,Number(1-x._2))})
+  
 
   def prob(x: Number): Double = if (x < xps.head._1) 0.0 else xps.toSeq.takeWhile(_._1 <= x).last._2
 
