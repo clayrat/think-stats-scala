@@ -26,6 +26,18 @@ object Hist {
 
 }
 
+object numHist {
+
+  def binData(as: List[Number], bins: Int): List[Number] = {
+    val step = (as.max - as.min) / bins
+    (for (n <- 1 to bins) yield {
+      val number = as.count { a => as.min + step * (n - 1) < a && a <= as.min + step * n }
+      List.fill(number)(as.min + step * (n - 0.5))
+    }).toList.flatten
+  }
+
+}
+
 class Pmf[A](val pmfMap: Map[A, Double]) {
 
   def items = pmfMap.toList
@@ -61,7 +73,7 @@ object Pmf {
 }
 
 class intPmf(val intMap: Map[Int, Double]) extends Pmf[Int](intMap: Map[Int, Double]) {
-  
+
   //2.5
   def mean = items.map(a => a._1 * a._2).sum
 
@@ -82,7 +94,7 @@ object intPmf {
 object PmfTest {
 
   implicit def pmf2intPmf(pmf: Pmf[Int]) = intPmf.fromPmf(pmf)
-  
+
   //2.4
   def remainingLifetime(lifetimes: Pmf[Int], age: Int): Pmf[Int] =
     new Pmf[Int](lifetimes.pmfMap.filterNot { case (key, _) => (key < age) }).normalized
