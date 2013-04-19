@@ -4,6 +4,8 @@ import scalax.io._
 import java.util.zip.GZIPInputStream
 import java.io.FileInputStream
 
+import scala.util.Random
+
 import jsc.distributions._
 
 import spire.math._
@@ -119,15 +121,32 @@ object continuous {
     plot.scatterPlot(xs zip ys.sorted, title, xtitle = "Standard normal values", ytitle)
   }
 
+  //4.14
+  def weibullVariate(lam: Double, k: Double): Double = {
+    val p = Random.nextDouble
+    exp(log(-log(1 - p)) / k + log(lam))
+  }
+
   def main(args: Array[String]) {
     babyInterarrival
+
     exponentialTask
+
     paretoSamples
+
     paretoSpain
+
     zipfLaw
+
     weibullTransform
+
     WAIS
+
     normalPregnancy
+
+    val cdf1 = Cdf.fromList(List.fill(1000)(weibullVariate(1, 1.5)) map { Number(_) })
+    plot.linePlot(cdf1.render, "weibull variate")
+
   }
 
 }

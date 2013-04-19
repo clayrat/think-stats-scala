@@ -25,7 +25,7 @@ object plot {
   }
 
   def histPlot(data: List[(Number, Number)], title: String, xtitle: String = "X", ytitle: String = "Y") {
-    val series = new XYSeries(title)
+    val series = new XYSeries("")
     data map { case (x, y) => series.add(x, y) }
     val x = data.unzip._1
     val dataset = new XYSeriesCollection(series)
@@ -50,7 +50,7 @@ object plot {
   }
 
   def linePlot(data: List[(Number, Number)], title: String, xtitle: String = "X", ytitle: String = "Y", logX: Boolean = false, logY: Boolean = false) {
-    val series = new XYSeries(title)
+    val series = new XYSeries("")
     data map { case (x, y) => series.add(x, y) }
     val dataset = new XYSeriesCollection(series)
 
@@ -101,7 +101,7 @@ object plot {
   }
 
   def scatterPlot(data: List[(Number, Number)], title: String, xtitle: String = "X", ytitle: String = "Y") {
-    val series = new XYSeries(title)
+    val series = new XYSeries("")
     data map { case (x, y) => series.add(x, y) }
     val dataset = new XYSeriesCollection(series)
 
