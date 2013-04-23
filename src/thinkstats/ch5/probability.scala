@@ -1,10 +1,16 @@
-package ugent
+package thinkstats.ch5
+
+import thinkstats.helper.plot._
+import thinkstats.helper.stats._
+import thinkstats.ch2._
+import thinkstats.ch3._
 
 import scala.util.Random
-import jsc.distributions._
 
 import spire.math._
 import spire.math.compat._
+
+import jsc.distributions._
 
 object probability {
 
@@ -63,15 +69,17 @@ object probability {
     println("Stupid switching wins: " + switchWinsStupid.toDouble / runs)
   }
 
+  // 5.6
   def baker {
     def heaviest(n: Int): Double = {
       val breadDist = new Normal(950, 50)
       List.fill(n)(breadDist.random).max
     }
 
+    // empirically, we establish that baker needs only 4 breads 
     val breads = List.fill(365)(heaviest(4)) map { Number(_) }
-    val breadMu = thinkstats.mean(breads)
-    val breadSig = thinkstats.stddev(breads)
+    val breadMu = mean(breads)
+    val breadSig = stddev(breads)
     val simBreadDist = new Normal(breadMu, breadSig)
     val simBreads = List.fill(365)(simBreadDist.random) map { Number(_) }
 
@@ -80,16 +88,44 @@ object probability {
     val simuPmf = Pmf.fromList(numHist.binData(simBreads, 15))
     val simuCdf = Cdf.fromList(simBreads)
 
-    plot.linePlot2(renderPmf(breadPmf), "Heaviest breads over a year", renderPmf(simuPmf), "Breads baker wants us to believe")
-    plot.scatterPlot(breads.sorted zip simBreads.sorted, "Breads comparison")
-    plot.linePlot2(breadCdf.render, "Heaviest breads over a year", simuCdf.render, "Breads baker wants us to believe")
+    linePlot2(renderPmf(breadPmf), "Heaviest breads over a year", renderPmf(simuPmf), "Breads baker wants us to believe")
+    scatterPlot(breads.sorted zip simBreads.sorted, "Breads comparison")
+    linePlot2(breadCdf.render, "Heaviest breads over a year", simuCdf.render, "Breads baker wants us to believe")
+  }
+
+  // 5.7
+  def dancePairs(n: Int) {
+    val menDist = new Normal(178, math.sqrt(59.4))
+    val womenDist = new Normal(163, math.sqrt(52.8))
+    println("Coefficient of variation for men: " + menDist.sd / menDist.mean)
+    println("Coefficient of variation for women: " + womenDist.sd / womenDist.mean)
+    val pairsList = List.fill(n)(menDist.random) zip List.fill(n)(womenDist.random)
+    println("Percentage of pairs with a higher woman: "
+      + 100 * pairsList.filter { case (man, woman) => woman > man }.size.toDouble / pairsList.size)
+  }
+
+  // 5.8
+  // 1/6 + 1/6 - 1/6^2 = 17/36 = 0.47(2)
+
+  // 5.9
+  // P(A xor B) = P(A) - P(B) - 2*P(A and B)
+
+  def binomialPMF(n: Int, p: Double)(k: Int): Double =
+    binomCoef(n, k) * math.pow(p, k) * math.pow(1 - p, n - k)
+
+  // 5.10
+  def hundredCoins {
+    //println(binomCoef(100, 50))
+    println("Probability of getting exactly 50 heads: " + binomialPMF(100, 0.5)(50))
   }
 
   def main(args: Array[String]) {
-    oneIsSix
+    /*oneIsSix
     hundredDice
     montyHall(1000)
     baker
+    dancePairs(1000)*/
+    hundredCoins
   }
 
 }

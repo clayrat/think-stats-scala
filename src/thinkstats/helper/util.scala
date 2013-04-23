@@ -1,4 +1,4 @@
-package ugent
+package thinkstats.helper
 
 object util {
   def map2[A, B](abs: (List[A], List[A]), f: A => B): (List[B], List[B]) = (abs._1 map f, abs._2 map f)

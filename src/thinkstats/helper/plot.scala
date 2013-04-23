@@ -1,16 +1,15 @@
-package ugent
+package thinkstats.helper
 
 import spire.math._
 import spire.math.compat._
-
 import javax.swing.JFrame
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.axis.LogarithmicAxis;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.ChartFactory
+import org.jfree.chart.ChartPanel
+import org.jfree.chart.axis.LogarithmicAxis
+import org.jfree.chart.plot.PlotOrientation
+import org.jfree.chart.plot.XYPlot
 import org.jfree.chart.renderer.xy.XYBarRenderer
-import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeries
 import org.jfree.data.xy.XYSeriesCollection;
 
 object plot {

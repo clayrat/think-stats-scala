@@ -1,4 +1,4 @@
-package ugent
+package thinkstats.ch3
 
 object scoreExample {
 

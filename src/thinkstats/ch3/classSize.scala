@@ -1,4 +1,6 @@
-package ugent
+package thinkstats.ch3
+
+import thinkstats.ch2._
 
 object classSize {
 

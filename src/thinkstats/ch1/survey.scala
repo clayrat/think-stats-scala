@@ -1,4 +1,4 @@
-package ugent
+package thinkstats.ch1
 
 import scala.collection.mutable
 import scalax.io._
@@ -7,6 +7,7 @@ import java.io.FileInputStream
 import Ordering.Implicits._
 import Numeric.Implicits._
 
+// TODO tidy up
 abstract class Table {
 
   /*Represents a table as an array of objects*/

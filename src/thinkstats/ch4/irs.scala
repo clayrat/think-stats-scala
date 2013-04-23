@@ -1,4 +1,8 @@
-package ugent
+package thinkstats.ch4
+
+import thinkstats.helper.plot._
+import thinkstats.helper.util._
+import thinkstats.ch3._
 
 import scalax.io._
 import spire.math._
@@ -58,9 +62,9 @@ object irs {
   def main(args: Array[String]) {
     val data = readData
     val incomeCdf = makeIncomeDist(data)
-    plot.linePlot(incomeCdf.render, "Income CDF")
-    plot.linePlot(util.removeFirstZeroes(incomeCdf.render), "Income log CDF", xtitle = "income", logX = true)
-    plot.linePlot(util.removeLastZero(util.removeFirstZeroes(incomeCdf.renderCCDF)), "Income log log CCDF", xtitle = "income", logX = true, logY = true)
+    linePlot(incomeCdf.render, "Income CDF")
+    linePlot(removeFirstZeroes(incomeCdf.render), "Income log CDF", xtitle = "income", logX = true)
+    linePlot(removeLastZero(removeFirstZeroes(incomeCdf.renderCCDF)), "Income log log CCDF", xtitle = "income", logX = true, logY = true)
   }
 
 }

@@ -1,7 +1,10 @@
-package ugent
+package thinkstats.ch2
+
+import thinkstats.helper.util._
+import thinkstats.ch1._
 
 object risk {
-  
+
   //2.6
   def probRange(pmf: Pmf[Int], a: Int, b: Int): Double = {
     pmf.items.filter(x => (a to b) contains x._1).unzip._2.sum
@@ -14,16 +17,16 @@ object risk {
 
     val table = new Pregnancies
     table.readRecords
-    val (live, firstK, nonfirstK) = util.map3(first.liveFirstNonFirst(table), { a: Double => a.toInt })
+    val (live, firstK, nonfirstK) = map3(first.liveFirstNonFirst(table), { a: Double => a.toInt })
 
     val pmfLive = Pmf.fromList(live)
     val pmfFirst = Pmf.fromList(firstK)
     val pmfNonfirst = Pmf.fromList(nonfirstK)
-    
+
     println("Probabilities for first babies: " + probEarly(pmfFirst) + " " + probOnTime(pmfFirst) + " " + probLate(pmfFirst))
     println("Probabilities for non-first babies: " + probEarly(pmfNonfirst) + " " + probOnTime(pmfNonfirst) + " " + probLate(pmfNonfirst))
     println("Probabilities for all babies: " + probEarly(pmfLive) + " " + probOnTime(pmfLive) + " " + probLate(pmfLive))
-    println("Relative risk: " + probEarly(pmfFirst)/probEarly(pmfNonfirst))
+    println("Relative risk: " + probEarly(pmfFirst) / probEarly(pmfNonfirst))
 
   }
 

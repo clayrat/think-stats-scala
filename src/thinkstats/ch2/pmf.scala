@@ -1,4 +1,4 @@
-package ugent
+package thinkstats.ch2
 
 import spire.math._
 import spire.math.compat._

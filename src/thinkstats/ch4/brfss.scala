@@ -1,7 +1,13 @@
-package ugent
+package thinkstats.ch4
+
+import thinkstats.helper.stats._
+import thinkstats.helper.plot._
+import thinkstats.ch1._
+import thinkstats.ch3._
 
 import spire.math._
 import spire.math.compat._
+import scala.Array.canBuildFrom
 
 class BRFSSRespondents extends Table {
   val filename = "data/BRFSlight.ASC.gz" // first 15000 lines of CDBRFS08.ASC gzipped 
@@ -46,7 +52,7 @@ class BRFSSRespondents extends Table {
      */
 
     def summary(t: List[Double]) {
-      val (mu, vari) = thinkstats.trimmedMeanVar(t map { Number(_) })
+      val (mu, vari) = trimmedMeanVar(t map { Number(_) })
       val sigma = math.sqrt(vari)
       val cv = sigma / mu
       List(t.size, mu, vari, sigma, cv) map { d => print(d + " ") }
@@ -71,19 +77,19 @@ class BRFSSRespondents extends Table {
      */
     val data = records.map { r => (r("weight2"), r("wtyrago")) }.filterNot { case (w, w2) => w.isNaN || w2.isNaN }
     val changes = data.map { case (w, w2) => Number(w - w2) }
-    println("Mean change " + thinkstats.mean(changes.toList))
+    println("Mean change " + mean(changes.toList))
   }
 
   def makeNormalModel(weights: Array[Double], xmax: Double = 175.0, xlabel: String = "adult weight (kg)") {
     val cdf = Cdf.fromList(weights.toList map { Number(_) })
 
-    val (mu, vari) = thinkstats.trimmedMeanVar(weights.sorted.toList map { Number(_) })
+    val (mu, vari) = trimmedMeanVar(weights.sorted.toList map { Number(_) })
     println("n, Mean, Var: " + weights.size, mu, vari)
 
     val sigma = math.sqrt(vari)
     println("Sigma: " + sigma)
 
-    plot.linePlot2(continuous.renderNormalCdf(mu, sigma, xmax), "weight model", cdf.render, "weight data", xlabel)
+    linePlot2(continuous.renderNormalCdf(mu, sigma, xmax), "weight model", cdf.render, "weight data", xlabel)
 
   }
 

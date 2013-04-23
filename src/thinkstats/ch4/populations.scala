@@ -1,4 +1,8 @@
-package ugent
+package thinkstats.ch4
+
+import thinkstats.helper.plot._
+import thinkstats.helper.util._
+import thinkstats.ch3._
 
 import scalax.io._
 import java.util.zip.GZIPInputStream
@@ -37,9 +41,9 @@ object populations {
     
     //4.12
     val citiesCdf = Cdf.fromList(cities)
-    plot.linePlot(citiesCdf.render, "City/Town Populations CDF", xtitle = "population")
-    plot.linePlot(citiesCdf.render, "City/Town Populations CDF log", logX = true, xtitle = "population log")
-    plot.linePlot(util.removeLastZero(citiesCdf.renderCCDF), "City/Town Populations CCDF log log", logX = true, logY = true, xtitle = "population log", ytitle = "P log")
+    linePlot(citiesCdf.render, "City/Town Populations CDF", xtitle = "population")
+    linePlot(citiesCdf.render, "City/Town Populations CDF log", logX = true, xtitle = "population log")
+    linePlot(removeLastZero(citiesCdf.renderCCDF), "City/Town Populations CCDF log log", logX = true, logY = true, xtitle = "population log", ytitle = "P log")
     continuous.normalPlot(cities, title = "Population normal plot", ytitle = "population")
     continuous.normalPlot(cities.map(_.toDouble).map(math.log).map { Number(_) }, title = "Population log normal plot", ytitle = "log(population)")
   }
