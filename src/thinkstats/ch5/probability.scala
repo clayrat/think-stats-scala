@@ -16,6 +16,9 @@ object probability {
 
   def renderPmf(pmf: Pmf[Number]): List[(Number, Number)] = pmf.items.map { case (x, p) => (x, Number(p)) }
 
+  def binomialPMF(n: Int, p: Double)(k: Int): Double =
+    binomCoef(n, k) * math.pow(p, k) * math.pow(1 - p, n - k)
+
   // 5.1
   def oneIsSix {
     val eights = for (
@@ -39,14 +42,14 @@ object probability {
   // 5.4 + 5.5
   def montyHall(runs: Int) {
 
-    def randomSetElement(s: Set[Char]) = s.toList(Random.nextInt(s.size))
+    def randomSetElement[A](s: Set[A]) = s.toList(Random.nextInt(s.size))
 
     def montyRun(switch: Boolean): Boolean = {
       val doors = Set('A', 'B', 'C')
       val prize = randomSetElement(doors)
       val choice = randomSetElement(doors)
       val opens = if (choice == prize) randomSetElement(doors - choice) else (doors - prize - choice).head
-      if (switch) (doors - opens - choice).head == prize else choice == prize
+      prize == (if (switch) (doors - opens - choice).head else choice)
     }
 
     // Monty doesn't know the prize door
@@ -110,13 +113,33 @@ object probability {
   // 5.9
   // P(A xor B) = P(A) - P(B) - 2*P(A and B)
 
-  def binomialPMF(n: Int, p: Double)(k: Int): Double =
-    binomCoef(n, k) * math.pow(p, k) * math.pow(1 - p, n - k)
-
   // 5.10
-  def hundredCoins {
-    //println(binomCoef(100, 50))
+  def hundredCoins =
     println("Probability of getting exactly 50 heads: " + binomialPMF(100, 0.5)(50))
+
+  // 5.11
+  def basketballMC(runs: Int) {
+
+    // (f, f, t, t, t, f) => (2, 3, 1)
+    def packSizes[A](ls: List[A]): List[Int] = {
+      if (ls.isEmpty) List()
+      else {
+        val (packed, next) = ls span { _ == ls.head }
+        if (next == Nil) List(packed.size)
+        else packed.size +: packSizes(next)
+      }
+    }
+
+    def tenOrMore(ls: List[Int]) = ls.map(_ >= 10).reduce(_ || _)
+
+    def game = List.fill(10)(List.fill(15)(Random.nextBoolean))
+    def games(n: Int) = List.fill(n)(game.map { p => tenOrMore(packSizes(p)) }.reduce(_ || _))
+    def seasons(n: Int) = List.fill(n)(games(82).reduce(_ || _))
+
+    def ratio(ls: List[Boolean]) = ls.filter(_ == true).size.toDouble / ls.size
+
+    println("Probability of a 10-streak in a game: " + ratio(games(runs)))
+    println("Probability of a 10-streak in a season: " + ratio(seasons(runs)))
   }
 
   def main(args: Array[String]) {
@@ -124,8 +147,9 @@ object probability {
     hundredDice
     montyHall(1000)
     baker
-    dancePairs(1000)*/
-    hundredCoins
+    dancePairs(1000)
+    hundredCoins*/
+    basketballMC(1000)
   }
 
 }
