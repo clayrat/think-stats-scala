@@ -136,10 +136,78 @@ object probability {
     def games(n: Int) = List.fill(n)(game.map { p => tenOrMore(packSizes(p)) }.reduce(_ || _))
     def seasons(n: Int) = List.fill(n)(games(82).reduce(_ || _))
 
-    def ratio(ls: List[Boolean]) = ls.filter(_ == true).size.toDouble / ls.size
+    def ratio(ls: List[Boolean]) = ls.filter(a => a).size.toDouble / ls.size
 
     println("Probability of a 10-streak in a game: " + ratio(games(runs)))
     println("Probability of a 10-streak in a season: " + ratio(seasons(runs)))
+  }
+
+  // 5.12 
+  // baseball rules are a mystery to me
+
+  // 5.13
+  def cancerCluster {
+    def cancer: Boolean = Random.nextInt(1000) == 999
+
+    def cohort(years: Int) = {
+      def newCohort = Array.fill(100)(cancer)
+      def cohortHelper(c: Array[Boolean], year: Int): Array[Boolean] = {
+        if (year < years) cohortHelper(c map {
+          _ match {
+            case true => true
+            case false => cancer
+          }
+        }, year + 1)
+        else c
+      }
+      cohortHelper(newCohort, 0)
+    }
+
+    // 1)
+    val runs1 = 1000
+
+    val cohortCancers = List.fill(runs1)(cohort(10).count(a => a)) map { Number(_) }
+    val cohortPmf = Pmf.fromList(cohortCancers)
+    histPlot(renderPmf(cohortPmf), "Cancer cases in cohort PMF")
+
+    // 2)
+    def statCases(pmf: Pmf[Number], pval: Double): Int =
+      pmf.items.sorted.find { case (n, p) => p < pval }.get._1.toInt
+
+    val statp005 = statCases(cohortPmf, 0.05)
+    println("Statistically significant # of cases: " + statp005)
+
+    // 3)
+    val runs3 = 1000
+
+    def tenThousand(cases: Int) = Array.fill(100)(cohort(10).count(a => a)).map(_ >= cases).reduce(_ || _)
+    def trial(cases: Int) = Array.fill(runs3)(tenThousand(cases))
+
+    val trial005 = trial(statp005)
+    println("Chances for 10000 people are (p=0.05): " + trial005.count(a => a).toDouble / trial005.size)
+    val statp001 = statCases(cohortPmf, 0.01)
+    val trial001 = trial(statp001)
+    println("Chances for 10000 people are (p=0.01): " + trial001.count(a => a).toDouble / trial001.size)
+
+    // 4)
+    val runs4 = 1000
+
+    def block10x10(g: Array[Array[Boolean]], x: Int, y: Int) =
+      g.slice(y, y + 10).map(_.slice(x, x + 10).count(a => a)).sum
+
+    def gridTrial(runs: Int, cases: Int): Double = {
+      val trials = for (n <- 1 to runs) yield {
+        val grid = Array.fill(100)(cohort(10))
+        lazy val blocks = for (x <- 0 to 90; y <- 0 to 90) yield (block10x10(grid, x, y) >= cases)
+        blocks.reduce(_ || _)
+      }
+      trials.count(a => a).toDouble / trials.size
+    }
+    println("Chances for 100x100 grid are (p=0.05): " + gridTrial(runs4, statp005))
+    println("Chances for 100x100 grid are (p=0.01): " + gridTrial(runs4, statp001))
+
+    // 5)
+    // meh, 10 years already give ~1.0
   }
 
   def main(args: Array[String]) {
@@ -148,8 +216,9 @@ object probability {
     montyHall(1000)
     baker
     dancePairs(1000)
-    hundredCoins*/
-    basketballMC(1000)
+    hundredCoins
+    basketballMC(1000)*/
+    cancerCluster
   }
 
 }
