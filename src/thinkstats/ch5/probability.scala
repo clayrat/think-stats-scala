@@ -108,7 +108,7 @@ object probability {
   }
 
   // 5.8
-  // 1/6 + 1/6 - 1/6^2 = 17/36 = 0.47(2)
+  // 1/6 + 1/6 - 1/6^2 = 11/36 = 0.30(5)
 
   // 5.9
   // P(A xor B) = P(A) - P(B) - 2*P(A and B)
@@ -164,7 +164,7 @@ object probability {
     }
 
     // 1)
-    val runs1 = 1000
+    val runs1 = 5000
 
     val cohortCancers = List.fill(runs1)(cohort(10).count(a => a)) map { Number(_) }
     val cohortPmf = Pmf.fromList(cohortCancers)
@@ -175,7 +175,7 @@ object probability {
       pmf.items.sorted.find { case (n, p) => p < pval }.get._1.toInt
 
     val statp005 = statCases(cohortPmf, 0.05)
-    println("Statistically significant # of cases: " + statp005)
+    println("Statistically significant # of cases (p=0.05): " + statp005)
 
     // 3)
     val runs3 = 1000
@@ -207,18 +207,53 @@ object probability {
     println("Chances for 100x100 grid are (p=0.01): " + gridTrial(runs4, statp001))
 
     // 5)
-    // meh, 10 years already give ~1.0
+    // meh, grid trial for 10 years already gives ~1.0
   }
 
+  // 5.14
+  def drugUse(sensitivity: Double, specificity: Double)(drugProb: Double) =
+    println("P of a true positive drug test with " + drugProb + " usage rate: " +
+      (drugProb * sensitivity) / (drugProb * sensitivity + (1 - drugProb) * (1 - specificity)))
+
+  // 5.15
+  // P(bowl1|plain) = P(bowl1)*P(plain|bowl1) / P(plain) = 
+  //                = P(bowl1)*P(plain|bowl1) / (P(bowl1)*P(plain|bowl1)+P(bowl2)*P(plain|bowl2))
+  // we can divide by P(bowl1) = P(bowl2) = 0.5
+  def cookies = println("P of bowl 1 given a plain cookie: " + 0.75 / (0.75 + 0.5))
+
+  // 5.16 
+  // E = yellow from #1, green from #2
+  // H1 = #1 is '94, #2 is '96
+  // H2 = #2 is '94, #1 is '96
+  // P(E/H1) = P(yellow/94)*P(green/96)
+  // P(E/H2) = P(green/94)*P(yellow/96)
+  def mnms = {
+    val py94 = 20.0 / (30 + 20 + 20 + 10 + 10 + 10)
+    val pg94 = 10.0 / (30 + 20 + 20 + 10 + 10 + 10)
+    val py96 = 14.0 / (24 + 20 + 16 + 14 + 13 + 13)
+    val pg96 = 20.0 / (24 + 20 + 16 + 14 + 13 + 13)
+    println("P of yellow m&m coming from '94 bag: " + py94 * pg96 / (py94 * pg96 + pg94 * py96))
+  }
+
+  // 5.17
+  // A = they were monozygotic (necessarily of same sex), P(A) = 0.08
+  // B = they were just twins (sexes could differ), P(B) = 1-P(A) = 0.92
+  // E = his twin had same sex, thus P(E/A) = 1.0, P(E/B) = 0.5
+  def elvisTwin = println("P of monozygotic Elvis: " + 0.08 / (0.08 + 0.92 * 0.5))
+
   def main(args: Array[String]) {
-    /*oneIsSix
+    oneIsSix
     hundredDice
     montyHall(1000)
     baker
     dancePairs(1000)
     hundredCoins
-    basketballMC(1000)*/
+    basketballMC(1000)
     cancerCluster
+    List(0.05, 0.01) map drugUse(0.6, 0.99)
+    cookies
+    mnms
+    elvisTwin
   }
 
 }
