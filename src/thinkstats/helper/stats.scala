@@ -40,15 +40,18 @@ object stats {
     (mean(trimmed), variance(trimmed))
   }
 
+  def median(s: List[Number]) = {
+    val (lower, upper) = s.sortWith(_ < _).splitAt(s.size / 2)
+    if (s.size % 2 == 0) (lower.last + upper.head) / 2.0 else upper.head
+  }
+
   // TODO Double->BigInt of some sort?
   def binomCoef(n: Int, k: Int): Double = {
     /* 
      * Compute the binomial coefficient "n choose k".
-     *     Args:
-     *  n: number of trials
-     *  k: number of successes
-     *     Returns:
-     *  int
+     *  Args:
+     *   n: number of trials
+     *   k: number of successes
      */
     var memo: mutable.Map[(Int, Int), Double] = mutable.Map()
     def binomHelper(n: Int, k: Int): Double =
@@ -61,7 +64,6 @@ object stats {
           memo((n, k)) = res
           res
         })
-        //case (n, k) => binom(n - 1, k) + binom(n - 1, k - 1)
       }
     binomHelper(n, k)
   }

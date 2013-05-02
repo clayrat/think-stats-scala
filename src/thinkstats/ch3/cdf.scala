@@ -44,7 +44,7 @@ object Cdf {
     fromItems(h.items)
   }
 
-  def fromItems(its: List[(Number, Int)]): Cdf = {
+  def fromItems(its: List[(Number, Long)]): Cdf = {
     val (xs, cs) = its.sorted.unzip
     val cumcs = cs.scanLeft(0.0)(_ + _).tail
     new Cdf((xs zip (cumcs map (_ / cumcs.last))))

@@ -2,6 +2,7 @@ package thinkstats.ch5
 
 import thinkstats.helper.plot._
 import thinkstats.helper.stats._
+import thinkstats.helper.util._
 import thinkstats.ch2._
 import thinkstats.ch3._
 
@@ -42,10 +43,9 @@ object probability {
   // 5.4 + 5.5
   def montyHall(runs: Int) {
 
-    def randomSetElement[A](s: Set[A]) = s.toList(Random.nextInt(s.size))
+    val doors = Set('A', 'B', 'C')
 
     def montyRun(switch: Boolean): Boolean = {
-      val doors = Set('A', 'B', 'C')
       val prize = randomSetElement(doors)
       val choice = randomSetElement(doors)
       val opens = if (choice == prize) randomSetElement(doors - choice) else (doors - prize - choice).head
@@ -54,7 +54,6 @@ object probability {
 
     // Monty doesn't know the prize door
     def stupidMontyRun(switch: Boolean): Boolean = {
-      val doors = Set('A', 'B', 'C')
       val prize = randomSetElement(doors)
       val choice = randomSetElement(doors)
       val opens = randomSetElement(doors - choice)

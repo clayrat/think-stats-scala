@@ -1,29 +1,34 @@
 package thinkstats.ch3
 
+import spire.math._
+import spire.implicits._
+
+import spire.syntax.si._
+
 import thinkstats.ch2._
+import thinkstats.ch2.numPmf._
 
 object classSize {
 
-  implicit def pmf2intPmf(pmf: Pmf[Int]) = intPmf.fromPmf(pmf)
-  
+ 
   //3.1
-  def biasedPmf(pmf: Pmf[Int]): Pmf[Int] =
-    pmf.multiplied { a: Int => a }.normalized
+  def biasedPmf(pmf: Pmf[Number]): Pmf[Number] =
+    pmf.multiplied { a: Number => a.toDouble }.normalized
 
-  def unbiasedPmf(pmf: Pmf[Int]): Pmf[Int] =
-    pmf.multiplied { a: Int => 1.0 / a }.normalized
+  def unbiasedPmf(pmf: Pmf[Number]): Pmf[Number] =
+    pmf.multiplied { a: Number => 1.0 / a.toDouble }.normalized
 
   def main(args: Array[String]) {
     val classSize = Map(
-      7 -> 8,
-      12 -> 8,
-      17 -> 14,
-      22 -> 4,
-      27 -> 6,
-      32 -> 12,
-      37 -> 8,
-      42 -> 3,
-      47 -> 2)
+      Number(7) -> j"8",
+      Number(12) -> j"8",
+      Number(17) -> j"14",
+      Number(22) -> j"4",
+      Number(27) -> j"6",
+      Number(32) -> j"12",
+      Number(37) -> j"8",
+      Number(42) -> j"3",
+      Number(47) -> j"2") 
 
     val classPmf = Pmf.fromHist(Hist.fromMap(classSize))
     val biased = biasedPmf(classPmf)

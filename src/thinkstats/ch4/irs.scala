@@ -9,7 +9,7 @@ import spire.math._
 import spire.math.compat._
 
 object irs {
-  def readData = {
+  def readIrsData = {
     def process(s: Array[String], word: String): Array[String] =
       {
         if (s.isEmpty) Array()
@@ -27,26 +27,26 @@ object irs {
       val raw = line.split(',')
       if (!raw.head.contains("All returns") && !raw.head.contains("Accumulated")) {
         val data = process(raw, "").toList.take(2)
-        Some(data.head, data.last.toInt)
+        Some(data.head, data.last.toLong)
       } else None
     }).toArray.flatten
   }
 
-  def makeIncomeDist(data: Array[(String, Int)]): Cdf = {
-    /* Converts the strings from the IRS file to Cdf.
+  def incomeList(data: Array[(String, Long)]): List[(Number, Long)] = {
+    /* Converts the strings from the IRS file to items list.
      * Args:
-     * data: list of (dollar range, number of returns) string pairs
+     * data: list of (dollar range midpoint, number of returns) string pairs
       */
-    def toRange(s: String): (Int, Int) = {
+    def toRange(s: String): (Long, Long) = {
       val splitted = s.split(' ')
       (splitted.head, splitted.last) match {
         case (l, h) if h == "income" => (0, 0)
-        case (l, h) if h == "more" => (l.tail.toInt, -1)
-        case (l, h) => (l.tail.toInt, h.tail.toInt)
+        case (l, h) if h == "more" => (l.tail.toLong, -1)
+        case (l, h) => (l.tail.toLong, h.tail.toLong)
       }
     }
 
-    def midpoint(lowhi: (Int, Int)): Double = lowhi match {
+    def midpoint(lowhi: (Long, Long)): Double = lowhi match {
       /*Finds the midpoint of a range.*/
       case (low, high) =>
         if (high == -1)
@@ -55,13 +55,13 @@ object irs {
           (low + high) / 2.0
     }
 
-    Cdf.fromItems((data map { case (range, number) => (Number(midpoint(toRange(range))), number) } toList))
+    data map { case (range, number) => (Number(midpoint(toRange(range))), number) } toList
 
   }
 
   def main(args: Array[String]) {
-    val data = readData
-    val incomeCdf = makeIncomeDist(data)
+    val data = readIrsData
+    val incomeCdf = Cdf.fromItems(incomeList(data))
     linePlot(incomeCdf.render, "Income CDF")
     linePlot(removeFirstZeroes(incomeCdf.render), "Income log CDF", xtitle = "income", logX = true)
     linePlot(removeLastZero(removeFirstZeroes(incomeCdf.renderCCDF)), "Income log log CCDF", xtitle = "income", logX = true, logY = true)
