@@ -5,8 +5,15 @@ import thinkstats.helper.stats._
 import spire.math._
 import spire.math.compat._
 
+import scala.util.Random
+
 import thinkstats.ch2._
 import thinkstats.ch2.numPmf._
+
+// 6.4
+class Gumbell(mu: Double, beta: Double) {
+  def generate = mu - beta * log(-log(Random.nextDouble))
+}
 
 object distOps {
 
@@ -56,9 +63,37 @@ object distOps {
     println("Gini index is " + gini(incPmf))
   }
 
+  def gumbell {
+    import thinkstats.ch3._
+    import thinkstats.helper.plot._
+    val gum1 = new Gumbell(0.5, 2.0)
+    val gum1Cdf = Cdf.fromList(List.fill(1000)(gum1.generate))
+    val gum2 = new Gumbell(3.0, 4.0)
+    val gum2Cdf = Cdf.fromList(List.fill(1000)(gum2.generate))
+    linePlot2(gum1Cdf.render, "mu=0.5, b=2.0", gum2Cdf.render, "mu=3.0, b=4.0")
+  }
+
+  // 6.5
+  def exp1to20(x: Double) = exp(-x) - exp(-20 * x)
+
+  // 6.6
+  // 5'10" = 177.8 cm
+  // 6'1" = 185.4 cm
+  def blueMan {
+    import thinkstats.helper.stats._
+    def normCDF(mu: Double, sig: Double)(x: Double) = (1 + erf((x - mu) / (sig * math.sqrt(2)))) / 2
+    def popCDF = normCDF(178.0, math.sqrt(59.4)) _
+    println("Eligible for Blue Man are: " + 100 * (popCDF(185.4) - popCDF(177.8)) + "%")
+  }
+
+  // 6.7
+  // it's l^3*exp(-l*x)*x^2/2, which is Erlang distribution, k=3
+
   def main(args: Array[String]) {
     pregnancySkewness
     incomeStats
+    gumbell
+    blueMan
   }
 
 }

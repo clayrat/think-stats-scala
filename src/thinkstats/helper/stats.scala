@@ -68,6 +68,21 @@ object stats {
     binomHelper(n, k)
   }
 
+  // from http://picomath.org/scala/Erf.scala.html 
+  def erf(x: Double): Double = {
+    val a1: Double = 0.254829592
+    val a2: Double = -0.284496736
+    val a3: Double = 1.421413741
+    val a4: Double = -1.453152027
+    val a5: Double = 1.061405429
+    val p: Double = 0.3275911
+    val sign = if (x < 0) -1 else 1
+    val absx = math.abs(x)
+    val t = 1.0 / (1.0 + p * absx)
+    val y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * math.exp(-x * x)
+    sign * y
+  }
+
   def main(args: Array[String]) {
     import thinkstats.ch2._
     import thinkstats.ch3._
