@@ -44,6 +44,7 @@ object numHist {
 class Pmf[A](val pmfMap: Map[A, Double]) {
 
   def items = pmfMap.toList
+  
   def vals = pmfMap.keys.toList
 
   def total = pmfMap.values.sum
@@ -60,7 +61,7 @@ class Pmf[A](val pmfMap: Map[A, Double]) {
 }
 
 object Pmf {
-  def fromMap[A](map: Map[A, Double]) {
+  def fromMap[A](map: Map[A, Double]) = {
     new Pmf(map)
   }
 

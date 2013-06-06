@@ -34,7 +34,7 @@ object distOps {
     val liveBirths = preg.records.filter(_("outcome") == 1).toList
     val weights = liveBirths map { _("totalwgt_oz") } filterNot (_.isNaN) map { a => Number(ozToGram(a)) }
     val lengths = liveBirths map { a => Number(a("prglength")) }
-    println("= Pregnancy lengths =")
+    println("Pregnancy lengths:")
     println("skewness = " + skewness(lengths) + ", pearson-sk = " + pearsonSkewness(lengths))
     println("Birth weights:")
     println("skewness = " + skewness(weights) + ", pearson-sk = " + pearsonSkewness(weights))
@@ -89,11 +89,39 @@ object distOps {
   // 6.7
   // it's l^3*exp(-l*x)*x^2/2, which is Erlang distribution, k=3
 
+  // 6.8-9
+  def functionsOnPMFs(am: Int, bm: Int) = {
+    def support2F(xp: Pmf[Int], yp: Pmf[Int], f: (Int, Int) => Int) =
+      (for (x <- xp.vals; y <- yp.vals) yield f(x, y)).distinct
+
+    def sumPMFs(xp: Pmf[Int], yp: Pmf[Int]): Pmf[Int] =
+      Pmf.fromMap(
+        (for (z <- support2F(xp, yp, { _ + _ }))
+          yield (z, yp.vals.map(y => xp.prob(z - y) * yp.prob(y)).sum))
+          .toMap)
+
+    def maxPMFs(xp: Pmf[Int], yp: Pmf[Int]): Pmf[Int] =
+      Pmf.fromMap(
+        (for (z <- support2F(xp, yp, max))
+          yield (z,
+          (for (x <- xp.vals if x <= z) yield xp.prob(x) * yp.prob(z)).sum
+          + (for (y <- yp.vals if y < z) yield xp.prob(z) * yp.prob(y)).sum))
+          .toMap)
+          
+    val a = Pmf.fromList((0 to am).toList)
+    val b = Pmf.fromList((0 to bm).toList)
+    println("[0," + am + "]+[0," + bm + "]:")
+    println(sumPMFs(a, b).items.sorted)
+    println("max([0," + am + "],[0," + bm + "]):")
+    println(maxPMFs(a, b).items.sorted)
+  }
+
   def main(args: Array[String]) {
     pregnancySkewness
     incomeStats
     gumbell
     blueMan
+    functionsOnPMFs(1, 1)
   }
 
 }
